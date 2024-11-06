@@ -19,7 +19,10 @@ library(gganimate)
 
 ```{r}
 
-data_ts<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv")
+#data_ts<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv") #windows
+data_ts<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv")
+
+
 
 ```
 
@@ -169,3 +172,53 @@ ID RESPONSE
 What religions go with each party (1980 vs 2024)
 
 evangelicals
+
+
+```{r}
+
+data_ts%>%
+  select(VCF0004, VCF0128a, VCF0302)%>%
+  mutate(Party_Identification_recode=case_when(VCF0302==1~"Republican",
+                                               VCF0302==2~"Independent",
+                                               VCF0302==3~"No preference/none/neither",
+                                               VCF0302==4~"Other",
+                                               VCF0302==5~"Democrat"))%>%
+  filter(VCF0004==1980)%>%
+  filter(VCF0128a==2)%>%#
+  count(Party_Identification_recode)
+  
+  
+
+```
+
+
+
+
+2020 Dataset
+
+
+```{r}
+data_2020<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_2020_csv_20220210/anes_timeseries_2020_csv_20220210.csv")
+
+```
+
+
+V201206 - Where would you put the democratic party of a scale
+V201230- if no party closer republican or democrat
+
+```{r}
+data_2020%>%
+  select(V201458x)%>%
+  count(V201458x)
+
+
+data_2020%>%
+  mutate(Party_Registration_recode=case_when(V202065x==1~"Democratic Party",
+                                              V202065x==2~"Republican Party",
+                                              V202065x==4~"None or Independent",
+                                              V202065x==5~"Other Party",
+                                              V202065x<0~"Missing"))%>%
+  filter(V201458x==2)%>%#selecting evangelical protestants
+  count(Party_Registration_recode)
+
+```
