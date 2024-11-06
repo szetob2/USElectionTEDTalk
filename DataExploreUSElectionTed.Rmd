@@ -1,0 +1,171 @@
+---
+title: "DataExploreNov5"
+author: "Ben Szeto"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(gganimate)
+
+
+```
+
+```{r}
+
+data_ts<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv")
+
+```
+
+#General Notes:
+
+VCF0128 RESPONDENT - RELIGION MAJOR GROUP
+Question 1952-1964: Is your Church (1962: religious) preference Protestant,
+Catholic or Jewish?
+1966-1968: Are you Protestant, Catholic or Jewish?
+1970-1988,2002: Is your religious preference Protestant, Catholic,
+Jewish, or something else?
+1990 AND LATER, exc. 2002: (IF R ATTENDS RELIGIOUS SERVICES:) Do you
+mostly attend a place of worship that is Protestant, Roman Catholic,
+Jewish or what? (IF R DOESN’T ATTEND RELIGIOUS SERVICES:)
+Regardless of whether you now attend any religious services do you
+ever think of yourself as part of a particular church or
+denomination? (IF YES:) Do you consider yourself Protestant, Roman
+Catholic, Jewish or what?
+
+
+Valid 
+1. Protestant
+2. Catholic [Roman Catholic]
+3. Jewish
+4. Other and none (also includes DK preference)
+
+```{r}
+
+data_ts<-data_ts%>%
+  mutate(Religion_Major_recode=case_when(VCF0128==1~"Protestant",
+                                         VCF0128==2~"Catholic(Roman Catholic)",
+                                         VCF0128==3~"Jewish",
+                                         VCF0128==4~"Other and None",
+                                         VCF0128==0~"Missing")
+  )
+```
+
+```{r}
+
+Religion_Major_Year<-data_ts%>%
+  group_by(VCF0004,Religion_Major_recode)%>%
+  summarize(
+    n()
+  )%>%
+  group_by(VCF0004)%>%
+  mutate(percent=`n()`*100/sum(`n()`))
+
+#Religion_Major_Year
+
+Religion_Major_Year%>%
+  ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode))+
+  geom_line()+
+  geom_point()+
+  labs(x="Year", y="Percent", title="Major Religions over Time")+
+  transition_reveal(VCF0004) #make it animated
+```
+
+
+
+
+
+VCF0130 RESPONDENT - CHURCH ATTENDANCE 1970-
+
+1. Every week (Except 1970: almost every week)
+2. Almost every week (no cases in 1970)
+3. Once or twice a month
+4. A few times a year
+5. Never (1990 and later: ‘No’ in filter)
+7. No religious preference (1970-1988)
+Missing 8. DK how often/DK if attend
+9. NA/RF how often/NA/RF if attend
+0. Religion (1970-1988); atheists and agnostics are Inap (1972,1986 only);
+short-form ‘new’ Cross Section (1992-1996)
+INAP. question not used
+
+```{r}
+
+Church_Attendence_Year<-data_ts%>%
+  filter(VCF0004>1970)%>%
+  group_by(VCF0004,as_factor(VCF0130))%>%
+  summarize(
+    n()
+  )%>%
+  group_by(VCF0004)%>%
+  mutate(percent=`n()`*100/sum(`n()`))
+
+Church_Attendence_Year
+
+Church_Attendence_Year%>%
+  ggplot(aes(x=VCF0004, y=percent, color=`as_factor(VCF0130)`))+
+  geom_line()+
+  geom_point()+
+  labs(x="Year", y="Percent", title="Church Attendence")
+
+```
+
+
+```{r}
+data_ts<-data_ts%>%
+  mutate(Church_Attendence_recode=case_when(VCF0128==1~"Every Week",
+                                         VCF0128==2~"Almost Every Week",
+                                         VCF0128==3~"Once or Twice a Month",
+                                         VCF0128==4~"A few times a year",
+                                         VCF0128==5~"Never",
+                                         VCF0128==7~"No religious Preference",
+                                         )
+  )
+
+```
+
+
+```{r}
+
+Church_Attendence_Year<-data_ts%>%
+  group_by(VCF0004,Religion_Major_recode)%>%
+  summarize(
+    n()
+  )%>%
+  group_by(VCF0004)%>%
+  mutate(percent=`n()`*100/sum(`n()`))
+
+#Religion_Major_Year
+
+Religion_Major_Year%>%
+  ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode))+
+  geom_line()+
+  geom_point()+
+  labs(x="Year", y="Percent", title="Major Religions over Time")+
+  transition_reveal(VCF0004) #make it animated
+```
+
+
+
+
+VCF0302 PARTY IDENTIFICATION OF RESPONDENT- INITIAL PARTY
+ID RESPONSE
+
+
+
+```{r}
+
+
+
+```
+
+
+What religions go with each party (1980 vs 2024)
+
+evangelicals
