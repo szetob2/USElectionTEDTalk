@@ -76,8 +76,8 @@ Religion_Major_Year%>%
   ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode))+
   geom_line()+
   geom_point()+
-  labs(x="Year", y="Percent", title="Major Religions over Time")+
-  transition_reveal(VCF0004) #make it animated
+  labs(x="Year", y="Percent", title="Major Religions over Time")#+
+  #transition_reveal(VCF0004) #make it animated
 ```
 
 
@@ -100,9 +100,20 @@ INAP. question not used
 
 ```{r}
 
+data_ts<-data_ts%>%
+  mutate(Church_Attendence_recode=case_when(VCF0130%in%c(1)~"Every Week",
+                                            VCF0130%in%c(2,3)~"At least once a month",
+                                            VCF0130%in%c(4)~"A few times a year",
+                                            VCF0130%in%c(5,7)~"Never"
+                                            
+         ))
+
+
+
 Church_Attendence_Year<-data_ts%>%
   filter(VCF0004>1970)%>%
-  group_by(VCF0004,as_factor(VCF0130))%>%
+  filter(Church_Attendence_recode%in%c("Every Week", "At least once a month", "A few times a year", "Never"))%>%
+  group_by(VCF0004, Church_Attendence_recode)%>%
   summarize(
     n()
   )%>%
@@ -112,10 +123,11 @@ Church_Attendence_Year<-data_ts%>%
 Church_Attendence_Year
 
 Church_Attendence_Year%>%
-  ggplot(aes(x=VCF0004, y=percent, color=`as_factor(VCF0130)`))+
+  ggplot(aes(x=VCF0004, y=percent, color=Church_Attendence_recode))+
   geom_line()+
   geom_point()+
-  labs(x="Year", y="Percent", title="Church Attendence")
+  labs(x="Year", y="Percent", title="Church Attendence")+
+  transition_reveal(VCF0004)
 
 ```
 
@@ -176,18 +188,22 @@ evangelicals
 
 ```{r}
 
-data_ts%>%
+Protestant_Evangelical_1984_PartyIdentification<-data_ts%>%
   select(VCF0004, VCF0128a, VCF0302)%>%
   mutate(Party_Identification_recode=case_when(VCF0302==1~"Republican",
-                                               VCF0302==2~"Independent",
-                                               VCF0302==3~"No preference/none/neither",
-                                               VCF0302==4~"Other",
+                                               VCF0302%in%c(2,3,4)~"Independent,Other,  No preference/none/neither",
                                                VCF0302==5~"Democrat"))%>%
-  filter(VCF0004==1980)%>%
+  filter(VCF0004==1984)%>%
   filter(VCF0128a==2)%>%#
+  filter(!is.na(Party_Identification_recode))%>%
   count(Party_Identification_recode)
   
-  
+ Protestant_Evangelical_1984_PartyIdentification%>%
+  ggplot(aes(x="", y=n, fill=Party_Identification_recode))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()
+   
 
 ```
 
@@ -212,13 +228,70 @@ data_2020%>%
   count(V201458x)
 
 
-data_2020%>%
+Protestant_Evangelical_2020_PartyReg<-data_2020%>%
   mutate(Party_Registration_recode=case_when(V202065x==1~"Democratic Party",
                                               V202065x==2~"Republican Party",
-                                              V202065x==4~"None or Independent",
-                                              V202065x==5~"Other Party",
+                                              V202065x%in%c(4,5)~"Other Party or Independent",
                                               V202065x<0~"Missing"))%>%
+  filter(!Party_Registration_recode=="Missing")%>%#Removing missing
   filter(V201458x==2)%>%#selecting evangelical protestants
   count(Party_Registration_recode)
+
+Protestant_Evangelical_2020_PartyReg
+
+Protestant_Evangelical_2020_PartyReg%>%
+  ggplot(aes(x="", y=n, fill=Party_Registration_recode))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()
+  
+
+```
+
+2012 data
+```{r}
+library(haven)
+data_2012<-read_dta("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_2012_dta/anes_timeseries_2012.dta")
+
+```
+
+```{r}
+Protestant_Evangelical_2012_PartyReg<-data_2012%>%
+  mutate(Party_Registration_recode=case_when(prevote_regpty==1~"Democratic Party",
+                                              prevote_regpty==2~"Republican Party",
+                                              prevote_regpty%in%c(4,5)~"Other Party or Independent",
+                                              prevote_regpty<0~"Missing"))%>%
+  filter(relig_7cat_x==2)%>%#Protestant Evangelicals
+  filter(!Party_Registration_recode=="Missing")%>%#Removing Missing
+  count(Party_Registration_recode)#Party of registration #What political party are you registered with, if any?
+
+
+
+Protestant_Evangelical_2012_PartyReg%>%
+  ggplot(aes(x="", y=n, fill=Party_Registration_recode))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()
+  
+
+```
+
+
+
+1984 Data (this data seems to be pretty limited)
+
+
+```{r}
+
+data_1984<-read_dta("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes1984dta/NES1984.dta")
+
+data_1984
+
+```
+
+```{r}
+
+data_1984%>%
+  count(V840687)#only 7 evangelical protestants?
 
 ```
