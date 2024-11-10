@@ -13,14 +13,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(gganimate)
+library(haven)
 
 
 ```
 
 ```{r}
 
-#data_ts<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv") #windows
-data_ts<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv")
+data_ts<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv") #Mac
+#data_ts<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv") # Windows
 
 
 
@@ -76,8 +77,56 @@ Religion_Major_Year%>%
   ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode))+
   geom_line()+
   geom_point()+
-  labs(x="Year", y="Percent", title="Major Religions over Time")#+
-  #transition_reveal(VCF0004) #make it animated
+  labs(x="Year", y="Percent", title="Major Religions over Time")+
+  theme_minimal()+
+  transition_reveal(VCF0004) #make it animated
+
+#2020
+Religion_2020<-data_ts%>%
+  filter(VCF0004==2020)%>%
+  filter(!Religion_Major_recode=="Missing")%>%
+  select(Religion_Major_recode)%>%
+  group_by(Religion_Major_recode)%>%
+  count()
+
+Religion_2020%>%
+  ggplot(aes(x="", y=n, fill=Religion_Major_recode))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()+
+  labs(title="2020")
+
+
+#2012
+Religion_2012<-data_ts%>%
+  filter(VCF0004==2012)%>%
+  filter(!Religion_Major_recode=="Missing")%>%
+  select(Religion_Major_recode)%>%
+  group_by(Religion_Major_recode)%>%
+  count()
+
+Religion_2012%>%
+  ggplot(aes(x="", y=n, fill=Religion_Major_recode))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()+
+  labs(title="2012")
+
+#1984
+Religion_1984<-data_ts%>%
+  filter(VCF0004==1984)%>%
+  filter(!Religion_Major_recode=="Missing")%>%
+  select(Religion_Major_recode)%>%
+  group_by(Religion_Major_recode)%>%
+  count()
+
+Religion_1984%>%
+  ggplot(aes(x="", y=n, fill=Religion_Major_recode))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()+
+  labs(title="1984")
+
 ```
 
 
@@ -127,6 +176,7 @@ Church_Attendence_Year%>%
   geom_line()+
   geom_point()+
   labs(x="Year", y="Percent", title="Church Attendence")+
+  theme_minimal()+
   transition_reveal(VCF0004)
 
 ```
@@ -163,6 +213,7 @@ Religion_Major_Year%>%
   geom_line()+
   geom_point()+
   labs(x="Year", y="Percent", title="Major Religions over Time")+
+  theme_minimal()+
   transition_reveal(VCF0004) #make it animated
 ```
 
@@ -214,7 +265,9 @@ Protestant_Evangelical_1984_PartyIdentification<-data_ts%>%
 
 
 ```{r}
-data_2020<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_2020_csv_20220210/anes_timeseries_2020_csv_20220210.csv")
+#data_2020<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_2020_csv_20220210/anes_timeseries_2020_csv_20220210.csv") #Windows
+
+data_2020<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes_timeseries_2020_csv_20220210/anes_timeseries_2020_csv_20220210.csv") # Mac
 
 ```
 
@@ -250,9 +303,10 @@ Protestant_Evangelical_2020_PartyReg%>%
 
 2012 data
 ```{r}
-library(haven)
-data_2012<-read_dta("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_2012_dta/anes_timeseries_2012.dta")
 
+#data_2012<-read_dta("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_2012_dta/anes_timeseries_2012.dta")
+
+data_2012<-read_dta("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes_timeseries_2012_dta/anes_timeseries_2012.dta")# Mac file path
 ```
 
 ```{r}
@@ -283,7 +337,9 @@ Protestant_Evangelical_2012_PartyReg%>%
 
 ```{r}
 
-data_1984<-read_dta("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes1984dta/NES1984.dta")
+#data_1984<-read_dta("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes1984dta/NES1984.dta") # Windows
+
+data_1984<-read_dta("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes1984dta/NES1984.dta")
 
 data_1984
 
