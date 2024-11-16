@@ -1,0 +1,96 @@
+---
+title: "Analyzing Christian Evangelicals Overtime"
+author: "Ben Szeto"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+
+```
+
+```{r}
+
+Evanglical_Denominations<-c(109,  250, 160, 168, 180, 280, 181, 251, 182, 155, 275,  167, 10, 167, 165, 275,  253, 183, 255, 255, 10, 120, 263, 250, 199, 234, 184, 100, 150, 170, 262, 185)#Evangelical Denominations
+
+```
+
+```{r}
+
+data_ts<-data_ts%>%
+  mutate(Evangelical_Den=ifelse(VCF0152%in%Evanglical_Denominations, TRUE, FALSE))
+
+
+
+data_Evangelical_Count<-data_ts%>%
+  group_by(VCF0004)%>%
+  count(Evangelical_Den)%>%
+  group_by(VCF0004)%>%
+  mutate(percent_evangelical=`n`/sum(`n`))%>%
+  filter(Evangelical_Den==TRUE)%>%
+  mutate(Method="Post 1990")
+
+data_Evangelical_Count
+
+data_Evangelical_Count%>%
+  ggplot(aes(x=VCF0004, y=percent_evangelical))+
+  geom_line()+
+  ylim(c(0,0.2))
+
+```
+
+```{r}
+
+data_ts%>%
+  group_by(VCF0004)%>%
+  count(Evangelical_Den)%>%
+  group_by(VCF0004)%>%
+  mutate(percent_evangelical=`n`/sum(`n`))
+
+
+```
+```{r}
+
+data_Evangelical_Count_2<-data_ts%>%
+  select(VCF0128a, VCF0004)%>%
+  mutate(Evangelical_Protestant=ifelse(VCF0128a==2, TRUE, FALSE))%>%
+  group_by(VCF0004)%>%
+  count(Evangelical_Protestant)%>%
+  group_by(VCF0004)%>%
+  mutate(percent_evangelical=`n`/sum(`n`))%>%
+  filter(VCF0004>1962)%>%
+  filter(VCF0004<=1988)%>%
+  mutate(Method="Pre 1990")%>%
+  filter(Evangelical_Protestant==TRUE)
+  
+
+
+```
+
+
+```{r}
+
+merged_Evangelical<-rbind(data_Evangelical_Count_2, data_Evangelical_Count)
+
+
+merged_Evangelical%>%
+  mutate(Method=factor(Method, c("Pre 1990", "Post 1990")))%>%
+  mutate(percent_evangelical=percent_evangelical*100)%>%
+  ggplot(aes(x=VCF0004, y=percent_evangelical, color=Method))+
+  geom_line()+
+  ylim(c(0,40))+
+  theme_minimal()+
+  labs(y="Percent Evangelical (%)", x="Year", title="Evangelicalism Over Time in the US")
+  
+
+```
+
+
+
+

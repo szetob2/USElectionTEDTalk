@@ -21,6 +21,8 @@ library(haven)
 ```{r}
 
 data_ts<-read.csv("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv") #Mac
+
+
 #data_ts<-read.csv("D:/DocumentsDisk2/US Elections F24/USElectionTEDTalk/anes_timeseries_cdf_csv_20220916/anes_timeseries_cdf_csv_20220916.csv") # Windows
 
 
@@ -77,7 +79,7 @@ Religion_Major_Year%>%
   ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode))+
   geom_line()+
   geom_point()+
-  labs(x="Year", y="Percent", title="Major Religions over Time")+
+  labs(x="Year", y="Percent", title="Major Religions Over Time")+
   theme_minimal()+
   transition_reveal(VCF0004) #make it animated
 
@@ -130,6 +132,40 @@ Religion_1984%>%
 ```
 
 
+```{r, combining Catholics and Protestants}
+
+
+Religion_Major_Year<-data_ts%>%
+  mutate(Religion_Major_recode2=ifelse(Religion_Major_recode%in%c("Catholic(Roman Catholic)", "Protestant"), "Christian", Religion_Major_recode))%>%
+  mutate(Religion_Major_recode2=factor(Religion_Major_recode2, c("Christian", "Jewish", "Other and None", "Missing")))%>%
+           group_by(VCF0004,Religion_Major_recode2)%>%
+           summarize(
+    n()
+  )%>%
+  group_by(VCF0004)%>%
+  mutate(percent=`n()`*100/sum(`n()`))
+
+Religion_Major_Year
+
+Religion_Major_Year%>%
+  ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode2))+
+  geom_line()+
+  geom_point()+
+  theme_minimal()+
+  labs(x="Year", y="Percent (%)", title="Trends in Religious Affiliation Among Americans Over Time", color="Religion")#+
+  transition_reveal(VCF0004) #make it animated
+
+```
+
+```{r}
+data_ts$VCF0152%>%
+  na.omit()%>%
+  unique()
+
+
+```
+
+
 
 
 
@@ -162,6 +198,7 @@ data_ts<-data_ts%>%
 Church_Attendence_Year<-data_ts%>%
   filter(VCF0004>1970)%>%
   filter(Church_Attendence_recode%in%c("Every Week", "At least once a month", "A few times a year", "Never"))%>%
+  mutate(Church_Attendence_recode=factor(Church_Attendence_recode, c("Every Week", "At least once a month", "A few times a year", "Never")))%>%
   group_by(VCF0004, Church_Attendence_recode)%>%
   summarize(
     n()
@@ -175,8 +212,8 @@ Church_Attendence_Year%>%
   ggplot(aes(x=VCF0004, y=percent, color=Church_Attendence_recode))+
   geom_line()+
   geom_point()+
-  labs(x="Year", y="Percent", title="Church Attendence")+
-  theme_minimal()+
+  labs(x="Year", y="Percent (%)", title="Church Attendence Over Time in the US", color="Church Attendence")+
+  theme_minimal()#+
   transition_reveal(VCF0004)
 
 ```
@@ -212,7 +249,7 @@ Religion_Major_Year%>%
   ggplot(aes(x=VCF0004, y=percent, color=Religion_Major_recode))+
   geom_line()+
   geom_point()+
-  labs(x="Year", y="Percent", title="Major Religions over Time")+
+  labs(x="Year", y="Percent", title="Trends in Religious Affiliation Among Americans Over Time")+
   theme_minimal()+
   transition_reveal(VCF0004) #make it animated
 ```
@@ -313,7 +350,7 @@ data_2012<-read_dta("/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Docu
 Protestant_Evangelical_2012_PartyReg<-data_2012%>%
   mutate(Party_Registration_recode=case_when(prevote_regpty==1~"Democratic Party",
                                               prevote_regpty==2~"Republican Party",
-                                              prevote_regpty%in%c(4,5)~"Other Party or Independent",
+                                              prevotp_regpty%in%c(4,5)~"Other Party or Independent",
                                               prevote_regpty<0~"Missing"))%>%
   filter(relig_7cat_x==2)%>%#Protestant Evangelicals
   filter(!Party_Registration_recode=="Missing")%>%#Removing Missing
@@ -328,6 +365,27 @@ Protestant_Evangelical_2012_PartyReg%>%
   theme_void()
   
 
+```
+
+2008 Data:
+
+
+```{r}
+data_2008<-read_dta('/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes_timeseries_2008_dta/anes_timeseries_2008.dta')
+
+data_2008
+
+
+```
+
+2004 Data:
+
+```{r}
+
+data_2004<-read_dta('/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/US Election Data/anes2004TSdta/anes2004TS.dta')
+
+
+data_2004$prevote_regpty
 ```
 
 
