@@ -1,0 +1,63 @@
+---
+title: "Content Analysis"
+author: "Ben Szeto"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+library(tidyverse)
+
+```
+
+```{r}
+
+content_analysis<-read.csv('/Users/benszeto/Library/CloudStorage/OneDrive-Personal/Documents/US Elections/Speach Content Analysis Data - Sheet1.csv')
+
+content_analysis<-content_analysis%>%
+  rename(Rhetoric=Appeal)%>%
+  mutate(President=factor(President, c("Reagan", "HW Bush", "Trump")))%>%
+  mutate(Rhetoric=factor(Rhetoric, c("Religious appeals through authority", "Christianity as foundation to American society", "Reaction to new boundaries of anti-establishment clause", "Other")))
+
+
+```
+
+
+```{r}
+
+content_analysis<-content_analysis%>%
+  group_by(President)%>%
+  mutate(Proportion=Count/sum(Count))
+
+```
+
+
+```{r}
+#Pie Chart
+content_analysis%>%
+  ggplot(aes(x="", y=Proportion, fill=Rhetoric))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y", start=0)+
+  theme_void()+
+  facet_wrap(vars(President))+
+  labs(title="Rhetoric Used by Reagan, HW Bush, and Trump")
+
+#Bar Plot
+content_analysis%>%
+  ggplot(aes(x=President, y=Count, fill=Rhetoric))+
+  geom_col(stat = "identity", position = position_dodge())+
+  labs(title="Rhetoric Used by Reagan, HW Bush, and Trump")+
+  theme_minimal()
+
+content_analysis%>%
+  ggplot(aes(x=President, y=Proportion, fill=Rhetoric))+
+  geom_col(stat = "identity", position = position_dodge())+
+  labs(title="Rhetoric Used by Reagan, HW Bush, and Trump")+
+  theme_minimal()
+```
